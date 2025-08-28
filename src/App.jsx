@@ -24,6 +24,16 @@ function App() {
     },
   ]);
 
+  function ontaskClick(taskId) {
+    const newTask = tasks.map((task) => {
+      if (task.id == taskId) {
+        return { ...task, isCompleted: !task.isCompleted };
+      }
+      return task;
+    });
+    setTasks(newTask);
+  }
+
   return (
     <div className="w-screen h-screen bg-slate-500 flex justify-center p-6">
       <div className="w-[500px] ">
@@ -31,7 +41,7 @@ function App() {
           Task manager
         </h1>
         <AddTask />
-        <Tasks tasks={tasks} />
+        <Tasks tasks={tasks} ontaskClick={ontaskClick} />
       </div>
     </div>
   );
