@@ -39,13 +39,23 @@ function App() {
     setTasks(newTask);
   }
 
+  function onAddTaskSubmits(title, description) {
+    const task = {
+      id: tasks.length + 1,
+      title: title,
+      description: description,
+      isCompleted: false,
+    };
+    setTasks([...tasks, task]);
+  }
+
   return (
     <div className="w-screen h-screen bg-slate-500 flex justify-center p-6">
       <div className="w-[500px] ">
         <h1 className="text-3xl text-slate-100 font-bold text-center">
           Task Managment
         </h1>
-        <AddTask />
+        <AddTask onAddTaskSubmits={onAddTaskSubmits} />
         <Tasks
           tasks={tasks}
           ontaskClick={onTaskClick}
