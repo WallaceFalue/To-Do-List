@@ -22,7 +22,11 @@ function AddTask(props) {
       />
       <button
         onClick={() => {
-          props.onAddTaskSubmits(title, description);
+          if (!title.trim() || !description.trim()) {
+            return alert("Please fill in both fields");
+          } else {
+            props.onAddTaskSubmits(title, description);
+          }
           setDescription("");
           setTitle("");
         }}
