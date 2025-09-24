@@ -1,66 +1,110 @@
-import Tasks from "./components/Tasks";
-import AddTask from "./components/AddTasks";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
+  const [newTask, setNewTask] = useState("");
+  const [editTask, setEditTask] = useState({
+    tasks: "",
+    isEditing: false,
+  });
+
   const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Estudar programação",
-      description: "Estudar React",
-      isCompleted: false,
-    },
-    {
-      id: 2,
-      title: "Ler um livro",
-      description: "Ler 'O Senhor dos Anéis'",
-      isCompleted: false,
-    },
-    {
-      id: 3,
-      title: "Fazer exercícios",
-      description: "Correr 5km",
-      isCompleted: false,
-    },
+    "Estudar REACT",
+    "Estudar TypeScript",
+    "Estudar NodeJS",
+    "Estudar MySQL",
   ]);
 
-  function onTaskClick(taskId) {
-    const newTask = tasks.map((task) => {
-      if (task.id == taskId) {
-        return { ...task, isCompleted: !task.isCompleted };
-      }
-      return task;
-    });
-    setTasks(newTask);
+  useEffect(() => {
+    const savedTasks = localStorage.getItem("@cursoReact");
+
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks));
+    }
+  }, []);
+
+  function HandleNewTask() {
+    if (newTask === "") {
+      alert("Preencha o campo");
+      return;
+    }
+
+    if (editTask.isEditing) {
+      HandleSafeEdit();
+      return;
+    }
+
+    setTasks([...tasks, newTask]);
+    setNewTask("");
+    localStorage.setItem("@cursoReact", JSON.stringify([...tasks, newTask]));
   }
 
-  function onDeleteTaskClick(taskId) {
-    const newTask = tasks.filter((task) => task.id !== taskId);
-    setTasks(newTask);
+  function HandleSafeEdit() {
+    const findIndex = tasks.findIndex((tasks) => tasks === editTask.tasks);
+    const updatedTasks = [...tasks];
+
+    updatedTasks[findIndex] = newTask;
+    setTasks(updatedTasks);
+    editTask.isEditing = false;
+
+    setNewTask("");
+    localStorage.setItem("@cursoReact", JSON.stringify(updatedTasks));
   }
 
-  function onAddTaskSubmits(title, description) {
-    const task = {
-      id: tasks.length + 1,
-      title: title,
-      description: description,
-      isCompleted: false,
-    };
-    setTasks([...tasks, task]);
+  function HandleDeleteTask(taskToDelete) {
+    const remainingTasks = tasks.filter((task) => task !== taskToDelete);
+    setTasks([...remainingTasks]);
+
+    localStorage.setItem("@cursoReact", JSON.stringify(remainingTasks));
+  }
+
+  function HandleEditTask(taskChanged) {
+    setNewTask(taskChanged);
+    setEditTask({ tasks: taskChanged, isEditing: true });
+
+    localStorage.setitem("@curosoReact", JSON.stringify(tasks));
   }
 
   return (
-    <div className="w-screen h-screen bg-slate-500 flex justify-center p-6">
-      <div className="w-[500px] ">
-        <h1 className="text-3xl text-slate-100 font-bold text-center">
-          Task Managment
-        </h1>
-        <AddTask onAddTaskSubmits={onAddTaskSubmits} />
-        <Tasks
-          tasks={tasks}
-          ontaskClick={onTaskClick}
-          onDeleteTaskClick={onDeleteTaskClick}
+    <div className="justify-center items-center flex flex-col h-screen bg-slate-900 text-white">
+      <h1 className="text-white mb-16 text-6xl">Task list</h1>
+      <div className="shadow-lg p-5 mb-10 rounded bg-slate-800 w-96 flex flex-col gap-3">
+        <h1 className="text-white text-2xl text-center">Add task</h1>
+        <input
+          className="p-2 rounded w-full border border-slate-300 text-white"
+          type="text"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          required
         />
+        <button
+          className="bg-blue-600 rounded-md p-2 hover:bg-blue-700 transition duration-300 transform hover:scale-105 w-full mt-2"
+          onClick={() => HandleNewTask()}
+        >
+          {editTask.isEditing ? "Edit" : "Save"}
+        </button>
+      </div>
+      <div className="shadow-lg p-5 mb-10 rounded bg-slate-800 w-170 flex flex-col justify-center items-center">
+        {tasks.map((item) => (
+          <section className="flex flex-row justify-between items-center w-full ">
+            <ul>
+              <li>{item}</li>
+            </ul>
+            <div className="gap-5 flex flex-row">
+              <button
+                className="mb-2 bg-slate-700 p-2 rounded hover:bg-green-500"
+                onClick={() => HandleEditTask(item)}
+              >
+                Edit
+              </button>
+              <button
+                className="mb-2 bg-slate-700 p-2 rounded hover:bg-green-500"
+                onClick={() => HandleDeleteTask(item)}
+              >
+                Clear
+              </button>
+            </div>
+          </section>
+        ))}
       </div>
     </div>
   );
