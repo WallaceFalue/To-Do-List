@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function App() {
+  const isSaved = useRef(true);
+
   const [newTask, setNewTask] = useState("");
   const [editTask, setEditTask] = useState({
     tasks: "",
@@ -15,12 +17,21 @@ function App() {
   ]);
 
   useEffect(() => {
-    const savedTasks = localStorage.getItem("@cursoReact");
+    const savedTasks = localStorage.getItem("@tasksSaved");
 
     if (savedTasks) {
       setTasks(JSON.parse(savedTasks));
     }
   }, []);
+
+  useEffect(() => {
+    if (isSaved.current) {
+      isSaved.current = false;
+      return;
+    }
+
+    localStorage.setItem("@tasksSaved", JSON.stringify(tasks));
+  }, [tasks]);
 
   function HandleNewTask() {
     if (newTask === "") {
@@ -35,7 +46,6 @@ function App() {
 
     setTasks([...tasks, newTask]);
     setNewTask("");
-    localStorage.setItem("@cursoReact", JSON.stringify([...tasks, newTask]));
   }
 
   function HandleSafeEdit() {
@@ -47,21 +57,16 @@ function App() {
     editTask.isEditing = false;
 
     setNewTask("");
-    localStorage.setItem("@cursoReact", JSON.stringify(updatedTasks));
   }
 
   function HandleDeleteTask(taskToDelete) {
     const remainingTasks = tasks.filter((task) => task !== taskToDelete);
     setTasks([...remainingTasks]);
-
-    localStorage.setItem("@cursoReact", JSON.stringify(remainingTasks));
   }
 
   function HandleEditTask(taskChanged) {
     setNewTask(taskChanged);
     setEditTask({ tasks: taskChanged, isEditing: true });
-
-    localStorage.setitem("@curosoReact", JSON.stringify(tasks));
   }
 
   return (
